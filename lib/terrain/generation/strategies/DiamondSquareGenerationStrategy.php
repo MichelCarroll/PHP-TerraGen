@@ -40,7 +40,7 @@ class DiamondSquareGenerationStrategy extends GenerationStrategy
     for($x = 0; $x < $w; $x++)
     for($y = 0; $y < $h; $y++)
     {
-      $tile = new Tile();
+      $tile = $terrain->getTileAt($x, $y);
       $tile->properties[$this->property] = $matrix[$x+$xOffset][$y+$yOffset];
       $terrain->setTileAt($x, $y, $tile);
     }

@@ -32,7 +32,7 @@ class Terrain
       $this->tileMatrix[$y] = array();
       for($x = 0; $x < $this->width; $x++)
       {
-        $this->tileMatrix[$y][$x] = null;
+        $this->tileMatrix[$y][$x] = new Tile();
       }
     }
   }

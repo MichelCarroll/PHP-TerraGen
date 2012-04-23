@@ -33,7 +33,7 @@ class RandomSingleGenerationStrategy extends GenerationStrategy
     for($x = 0; $x < $w; $x++)
     for($y = 0; $y < $h; $y++)
     {
-      $tile = new Tile();
+      $tile = $terrain->getTileAt($x, $y);
       $randVal = $this->min + ((double) (rand(0, self::RANDOMNESS) / self::RANDOMNESS) * $diffDelta);
       $tile->properties[$this->property] =  $randVal;
       $terrain->setTileAt($x, $y, $tile);

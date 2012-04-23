@@ -12,11 +12,17 @@ use terrain\Terrain;
 class TerrainGenerator
 {
   /**
-   * @var TerrainGeneratorOptions 
+   * @var array 
    */
   private $options;
+  
+  /**
+   * @var Terrain $terrain 
+   */
+  private $terrain;
+  
 
-  public function __construct(TerrainGeneratorOptions $options)
+  public function __construct(array $options)
   {
     $this->options = $options;
   }
@@ -27,35 +33,39 @@ class TerrainGenerator
    */
   public function generate()
   {
-    $terrain = new Terrain(
-      $this->options->getWidth(),
-      $this->options->getHeight()
+    $this->terrain = new Terrain(
+      $this->options['width'],
+      $this->options['height']
     );
     
-    $strategy = $this->options->getStrategy();
-    if(!$strategy)
+    $this->iterateStrategyStack($this->options['stack']);
+    
+    return $this->terrain;
+  }
+  
+  
+  private function iterateStrategyStack(array $strategyStack)
+  {
+    foreach($strategyStack as $strategy)
     {
-      throw new GeneratorException('Strategy not specified');
+      $strategyClassname = 
+        'terrain\\generation\\strategies\\'.
+        ucfirst($strategy['name']).
+        'GenerationStrategy';
+
+      if(!class_exists($strategyClassname))
+      {
+        throw new GeneratorException('Strategy ' . $strategyClassname . ' does not exist');
+      }
+
+      $params = (isset($strategy['params'])?$strategy['params']:array());
+      $strategyImpl = new $strategyClassname($params);
+      /* @var $strategyImpl GenerationStrategy  */
+
+
+      $this->terrain = $strategyImpl->generateTerrain($this->terrain);
     }
     
-    $strategyClassname = 
-      'terrain\\generation\\strategies\\'.
-      ucfirst($strategy).
-      'GenerationStrategy';
-    
-    if(!class_exists($strategyClassname))
-    {
-      throw new GeneratorException('Strategy ' . $strategy . ' does not exist');
-    }
-    
-    $options = $this->options->getStrategyOptions();
-    $strategyImpl = new $strategyClassname($options);
-    /* @var $strategyImpl GenerationStrategy  */
-    
-    
-    $newTerrain = $strategyImpl->generateTerrain($terrain);
-    
-    return $newTerrain;
   }
 
 }
